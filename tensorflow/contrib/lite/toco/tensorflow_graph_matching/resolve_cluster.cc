@@ -144,9 +144,7 @@ std::unique_ptr<GraphDef> MaybeReplaceCompositeSubgraph(
       MaybeResolveClusters(tf_graph, cluster_factories);
 
   // Copy function definitions
-  if (pruned_graph) {
-    *(pruned_graph->mutable_library()) = tf_graph.library();
-  }
+  *(pruned_graph->mutable_library()) = tf_graph.library();
   return pruned_graph;
 }
 

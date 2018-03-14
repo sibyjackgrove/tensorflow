@@ -415,17 +415,6 @@ py_library(
     deps = ["//tensorflow/python"],
 )
 
-py_library(
-    name = "experimental_tensorflow_py",
-    srcs = ["experimental_api.py"],
-    srcs_version = "PY2AND3",
-    visibility = ["//tensorflow/tools/api/tests:__subpackages__"],
-    deps = [
-        "//tensorflow/python",
-        "//tensorflow/tools/api/generator:python_api",
-    ],
-)
-
 filegroup(
     name = "all_opensource_files",
     data = [
@@ -452,7 +441,6 @@ filegroup(
         "//tensorflow/compiler/xla:all_files",
         "//tensorflow/compiler/xla/client:all_files",
         "//tensorflow/compiler/xla/client/lib:all_files",
-        "//tensorflow/compiler/xla/client/xla_client:all_files",
         "//tensorflow/compiler/xla/legacy_flags:all_files",
         "//tensorflow/compiler/xla/python:all_files",
         "//tensorflow/compiler/xla/service:all_files",

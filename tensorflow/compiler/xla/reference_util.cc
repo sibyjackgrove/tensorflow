@@ -189,6 +189,18 @@ ReferenceUtil::ReduceWindow1DGeneric(
     const tensorflow::gtl::ArraySlice<float>& operand, float init,
     const std::function<float(float, float)>& reduce_func,
     const tensorflow::gtl::ArraySlice<int64>& window,
+    const tensorflow::gtl::ArraySlice<int64>& stride, Padding padding) {
+  std::vector<int64> dim_lengths{static_cast<int64>(operand.size())};
+  return ReduceWindow1DGeneric(
+      operand, init, reduce_func, window, stride,
+      xla::MakePadding(dim_lengths, window, stride, padding));
+}
+
+/* static  */ std::unique_ptr<std::vector<float>>
+ReferenceUtil::ReduceWindow1DGeneric(
+    const tensorflow::gtl::ArraySlice<float>& operand, float init,
+    const std::function<float(float, float)>& reduce_func,
+    const tensorflow::gtl::ArraySlice<int64>& window,
     const tensorflow::gtl::ArraySlice<int64>& stride,
     const tensorflow::gtl::ArraySlice<std::pair<int64, int64>>& padding) {
   std::vector<int64> dim_lengths{static_cast<int64>(operand.size())};
@@ -223,28 +235,23 @@ ReferenceUtil::ReduceWindow1DAdd(
     const tensorflow::gtl::ArraySlice<int64>& window,
     const tensorflow::gtl::ArraySlice<int64>& stride, Padding padding) {
   const auto add_reduce = [](float arg1, float arg2) { return arg1 + arg2; };
-  std::vector<int64> dim_lengths{static_cast<int64>(operand.size())};
-  return ReduceWindow1DGeneric(
-      operand, init, add_reduce, window, stride,
-      xla::MakePadding(dim_lengths, window, stride, padding));
+  return ReduceWindow1DGeneric(operand, init, add_reduce, window, stride,
+                               padding);
 }
 
-/* static */ std::unique_ptr<Array2D<float>>
-ReferenceUtil::ReduceWindow2DGeneric(
+/* static  */ std::unique_ptr<Array2D<float>> ReferenceUtil::ReduceWindow2DAdd(
     const Array2D<float>& operand, float init,
-    const std::function<float(float, float)>& reduce_func,
     const tensorflow::gtl::ArraySlice<int64>& window,
-    const tensorflow::gtl::ArraySlice<int64>& stride,
-    const tensorflow::gtl::ArraySlice<std::pair<int64, int64>>& padding) {
+    const tensorflow::gtl::ArraySlice<int64>& stride, Padding padding) {
   std::vector<int64> dim_lengths{operand.height(), operand.width()};
+  auto padding_both = xla::MakePadding(dim_lengths, window, stride, padding);
 
   std::vector<int64> window_counts(window.size(), 0);
   std::vector<int64> pad_low(window.size(), 0);
   for (int64 i = 0; i < window.size(); ++i) {
-    int64 padded_width = padding[i].first + dim_lengths[i] + padding[i].second;
     window_counts[i] =
-        window_util::StridedBound(padded_width, window[i], stride[i]);
-    pad_low[i] = padding[i].first;
+        WindowCount(dim_lengths[i], window[i], stride[i], padding);
+    pad_low[i] = padding_both[i].first;
   }
   auto result = MakeUnique<Array2D<float>>(window_counts[0], window_counts[1]);
 
@@ -260,7 +267,7 @@ ReferenceUtil::ReduceWindow2DGeneric(
           if (i0_base + i0_win >= 0 && i1_base + i1_win >= 0 &&
               i0_base + i0_win < operand.n1() &&
               i1_base + i1_win < operand.n2()) {
-            val = reduce_func(val, operand(i0_base + i0_win, i1_base + i1_win));
+            val += operand(i0_base + i0_win, i1_base + i1_win);
           }
         }
       }
@@ -268,17 +275,6 @@ ReferenceUtil::ReduceWindow2DGeneric(
     }
   }
   return result;
-}
-
-/* static  */ std::unique_ptr<Array2D<float>> ReferenceUtil::ReduceWindow2DAdd(
-    const Array2D<float>& operand, float init,
-    const tensorflow::gtl::ArraySlice<int64>& window,
-    const tensorflow::gtl::ArraySlice<int64>& stride, Padding padding) {
-  const auto add_reduce = [](float arg1, float arg2) { return arg1 + arg2; };
-  std::vector<int64> dim_lengths{operand.height(), operand.width()};
-  return ReduceWindow2DGeneric(
-      operand, init, add_reduce, window, stride,
-      xla::MakePadding(dim_lengths, window, stride, padding));
 }
 
 /* static  */ std::unique_ptr<Array3D<float>> ReferenceUtil::ReduceWindow3DAdd(
@@ -472,7 +468,7 @@ ReferenceUtil::SelectAndScatter4DGePlus(
                       i3_base + i3_win < operand.n4()) {
                     float tmp = operand(i0_base + i0_win, i1_base + i1_win,
                                         i2_base + i2_win, i3_base + i3_win);
-                    if (tmp > val) {
+                    if (tmp >= val) {
                       val = tmp;
                       scatter_0 = i0_base + i0_win;
                       scatter_1 = i1_base + i1_win;

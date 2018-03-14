@@ -17,7 +17,6 @@
 See the @{$python/contrib.linalg} guide.
 
 @@LinearOperator
-@@LinearOperatorBlockDiag
 @@LinearOperatorDiag
 @@LinearOperatorIdentity
 @@LinearOperatorScaledIdentity
@@ -35,7 +34,6 @@ from __future__ import print_function
 # pylint: disable=unused-import,wildcard-import,line-too-long,g-importing-member
 
 from tensorflow.contrib.linalg.python.ops.linear_operator_addition import *
-from tensorflow.contrib.linalg.python.ops.linear_operator_block_diag import *
 from tensorflow.python.ops.linalg.linear_operator import *
 from tensorflow.python.ops.linalg.linear_operator_composition import *
 from tensorflow.python.ops.linalg.linear_operator_diag import *
@@ -47,5 +45,4 @@ from tensorflow.python.ops.linalg.linear_operator_lower_triangular import *
 # pylint: enable=unused-import,wildcard-import,line-too-long,g-importing-member
 
 from tensorflow.python.util.all_util import remove_undocumented
-
 remove_undocumented(__name__)

@@ -68,7 +68,6 @@ py_library(
     deps = [
         ":dataset_ops",
         ":shuffle_ops",
-        "//tensorflow/python:constant_op",
         "//tensorflow/python:dataset_ops_gen",
         "//tensorflow/python:dtypes",
         "//tensorflow/python:framework_ops",

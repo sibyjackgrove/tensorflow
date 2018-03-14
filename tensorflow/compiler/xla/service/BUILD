@@ -1173,9 +1173,7 @@ cc_library(
     deps = [
         ":hlo",
         ":shape_inference",
-        "//tensorflow/compiler/xla:literal_util",
         "//tensorflow/compiler/xla:statusor",
-        "//tensorflow/compiler/xla:util",
     ],
 )
 
@@ -1195,20 +1193,6 @@ cc_library(
         "//tensorflow/compiler/xla:window_util",
         "//tensorflow/compiler/xla:xla_data_proto",
         "//tensorflow/core:lib",
-    ],
-)
-
-cc_library(
-    name = "gather_expander",
-    srcs = ["gather_expander.cc"],
-    hdrs = ["gather_expander.h"],
-    deps = [
-        ":hlo",
-        ":hlo_creation_utils",
-        ":hlo_pass",
-        ":while_util",
-        "//tensorflow/compiler/xla:statusor",
-        "//tensorflow/compiler/xla:util",
     ],
 )
 
@@ -2563,9 +2547,7 @@ cc_library(
     deps = [
         ":call_inliner",
         ":hlo",
-        ":hlo_creation_utils",
         ":tuple_util",
-        "//tensorflow/core:lib",
     ],
 )
 

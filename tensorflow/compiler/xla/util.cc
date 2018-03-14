@@ -15,6 +15,7 @@ limitations under the License.
 
 #include "tensorflow/compiler/xla/util.h"
 
+#include <numeric>
 #include <stdarg.h>
 #include <numeric>
 
@@ -291,8 +292,7 @@ void LogLines(int sev, tensorflow::StringPiece text, const char* fname,
 }
 
 int64 Product(tensorflow::gtl::ArraySlice<int64> xs) {
-  return std::accumulate(xs.begin(), xs.end(), static_cast<int64>(1),
-                         std::multiplies<int64>());
+  return std::accumulate(xs.begin(), xs.end(), 1, std::multiplies<int64>());
 }
 
 std::vector<std::pair<int64, int64>> CommonFactors(
